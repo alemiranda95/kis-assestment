@@ -109,9 +109,14 @@ testable without touching Android.**
   and returns whether it's a distraction — edge-triggered with a debounce re-arm window. It's a
   plain Kotlin class, unit-tested by feeding it numbers.
 - **Lifecycle = collection.** Both sensor sources are cold `callbackFlow`s: they register on
-  collection and release in `awaitClose`. Because the ViewModel only collects while a session is
-  active, the mic and accelerometer are acquired on **Start** and released on **Stop** — no manual
+  collection and release in `awaitClose`. The ViewModel only collects while a session is active, so
+  the mic and accelerometer are acquired on **Start** and released on **Stop** — no manual
   bookkeeping, no leaks.
+- **Backgrounding ends the session.** A `ProcessLifecycleOwner` observer in `FocusRoot` stops the
+  session when the app goes to background (`ON_STOP`), which releases the sensors, saves the session,
+  and best-effort syncs it. Config changes (rotation) are debounced by `ProcessLifecycleOwner`, so
+  they don't end a session. This keeps detection strictly foreground and is *why* no foreground
+  service is needed.
 - **Permissions.** Requested on app entry and at session start via the Activity Result API in
   `FocusRoot`; status is queried through a `PermissionChecker` interface. If the mic is denied the
   session still runs (movement-only) and the UI says so.
@@ -120,10 +125,10 @@ testable without touching Android.**
   skip the startup transient; sensors run only while a session is foreground; network is batched to
   a single POST at stop.
 
-**Foreground service — intentionally not used.** Detection only needs to run while the session
-screen is foreground, so a foreground service is unnecessary for the MVP (and avoids its own
-battery cost and notification). True always-on/background monitoring *would* require a foreground
-service with the `microphone` type — documented as future work, not built.
+**Foreground service — intentionally not used.** Detection only runs while the app is foreground
+(backgrounding stops the session, above), so a foreground service is unnecessary for the MVP (and
+avoids its own battery cost and notification). True always-on/background monitoring *would* require a
+foreground service with the `microphone` type — documented as future work, not built.
 
 ---
 

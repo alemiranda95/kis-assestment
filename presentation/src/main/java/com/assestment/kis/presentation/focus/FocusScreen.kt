@@ -48,6 +48,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -71,6 +72,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.assestment.kis.presentation.R
 import com.assestment.kis.presentation.ds.Accent
@@ -123,6 +127,19 @@ fun FocusRoot(viewModel: FocusViewModel = koinViewModel()) {
     }
 
     LaunchedEffect(Unit) { viewModel.onAction(FocusAction.ScreenStarted) }
+
+    // Leaving the app ends the focus session: it releases the sensors, saves the session, and
+    // best-effort syncs it. ProcessLifecycleOwner debounces config changes, so a rotation won't stop it.
+    DisposableEffect(Unit) {
+        val lifecycle = ProcessLifecycleOwner.get().lifecycle
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onAction(FocusAction.StopSession)
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
 
     FocusScreen(state = state, onAction = viewModel::onAction, snackbarHostState = snackbarHostState)
 }

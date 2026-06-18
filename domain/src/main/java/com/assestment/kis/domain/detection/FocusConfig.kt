@@ -22,8 +22,8 @@ data class FocusConfig(
         val Default = FocusConfig(
             noiseThreshold = 1500f,
             movementThreshold = 3f,
-            rearmWindowMillis = 1500,
-            notificationCooldownMillis = 30_000,
+            rearmWindowMillis = 750,
+            notificationCooldownMillis = 15_000,
         )
     }
 }

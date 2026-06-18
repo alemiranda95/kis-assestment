@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -26,21 +29,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.assestment.kis.domain.session.DistractionType
 import com.assestment.kis.presentation.R
+import com.assestment.kis.presentation.ds.Accent
+import com.assestment.kis.presentation.ds.CardSurface
+import com.assestment.kis.presentation.ds.Dimens
+import com.assestment.kis.presentation.ds.FocusGradientTop
+import com.assestment.kis.presentation.ds.OnAccent
+import com.assestment.kis.presentation.ds.OnFocus
+import com.assestment.kis.presentation.ds.OnFocusMuted
+import com.assestment.kis.presentation.ds.Warn
 import com.assestment.kis.presentation.focus.model.DistractionEventUi
 import com.assestment.kis.presentation.focus.model.SessionUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistorySheet(state: FocusState, onAction: (FocusAction) -> Unit) {
-    ModalBottomSheet(onDismissRequest = { onAction(FocusAction.CloseHistory) }) {
+    ModalBottomSheet(
+        onDismissRequest = { onAction(FocusAction.CloseHistory) },
+        containerColor = FocusGradientTop,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = OnFocusMuted) },
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp),
+                .padding(horizontal = Dimens.spaceXl)
+                .padding(bottom = Dimens.spaceXl),
         ) {
             val selected = state.selectedSession
             if (selected != null) {
@@ -54,31 +68,37 @@ fun HistorySheet(state: FocusState, onAction: (FocusAction) -> Unit) {
 
 @Composable
 private fun HistoryList(state: FocusState, onAction: (FocusAction) -> Unit) {
-    Text(stringResource(R.string.focus_history_title), style = MaterialTheme.typography.titleLarge)
-    Spacer(Modifier.height(16.dp))
+    Text(stringResource(R.string.focus_history_title), style = MaterialTheme.typography.titleLarge, color = OnFocus)
+    Spacer(Modifier.height(Dimens.spaceLg))
     when {
-        state.historyLoading -> Box(Modifier.fillMaxWidth().padding(24.dp), Alignment.Center) {
-            CircularProgressIndicator()
+        state.historyLoading -> Box(Modifier.fillMaxWidth().padding(Dimens.spaceXl), Alignment.Center) {
+            CircularProgressIndicator(color = Accent)
         }
 
         state.historyError != null -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = state.historyError.asString(),
-                color = MaterialTheme.colorScheme.error,
+                color = Warn,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(Modifier.height(12.dp))
-            Button(onClick = { onAction(FocusAction.RetryHistory) }) {
+            Spacer(Modifier.height(Dimens.spaceMd))
+            Button(
+                onClick = { onAction(FocusAction.RetryHistory) },
+                colors = ButtonDefaults.buttonColors(containerColor = Accent, contentColor = OnAccent),
+            ) {
                 Text(stringResource(R.string.focus_history_retry))
             }
         }
 
-        state.history.isEmpty() -> Text(stringResource(R.string.focus_history_empty))
+        state.history.isEmpty() -> Text(
+            stringResource(R.string.focus_history_empty),
+            color = OnFocusMuted,
+        )
 
         else -> LazyColumn(
-            modifier = Modifier.heightIn(max = 480.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.heightIn(max = Dimens.sheetListMaxHeight),
+            verticalArrangement = Arrangement.spacedBy(Dimens.spaceSm),
         ) {
             items(state.history, key = { it.id }) { session ->
                 SessionRow(session) { onAction(FocusAction.SelectSession(session.id)) }
@@ -90,22 +110,27 @@ private fun HistoryList(state: FocusState, onAction: (FocusAction) -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SessionRow(session: SessionUi, onClick: () -> Unit) {
-    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = CardSurface),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(Dimens.spaceLg)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(session.startLabel, style = MaterialTheme.typography.titleSmall)
+                Text(session.startLabel, style = MaterialTheme.typography.titleSmall, color = OnFocus)
                 SyncBadge(session.synced)
             }
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(Dimens.spaceXs))
             Text(
                 text = "${stringResource(R.string.focus_duration_label)} ${session.durationLabel}",
                 style = MaterialTheme.typography.bodyMedium,
+                color = OnFocus,
             )
             Text(
                 text = "${stringResource(R.string.focus_noise_label)} ${session.noiseCount}" +
                     " · ${stringResource(R.string.focus_movement_label)} ${session.movementCount}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = OnFocusMuted,
             )
         }
     }
@@ -118,7 +143,7 @@ private fun SyncBadge(synced: Boolean) {
     Text(
         text = label,
         style = MaterialTheme.typography.labelMedium,
-        color = if (synced) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+        color = if (synced) Accent else Warn,
         modifier = Modifier.semantics { contentDescription = description },
     )
 }
@@ -126,20 +151,23 @@ private fun SyncBadge(synced: Boolean) {
 @Composable
 private fun SessionDetail(session: SessionUi, onBack: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        TextButton(onClick = onBack) { Text(stringResource(R.string.focus_back)) }
-        Text(session.startLabel, style = MaterialTheme.typography.titleLarge)
+        TextButton(onClick = onBack, colors = ButtonDefaults.textButtonColors(contentColor = Accent)) {
+            Text(stringResource(R.string.focus_back))
+        }
+        Text(session.startLabel, style = MaterialTheme.typography.titleLarge, color = OnFocus)
     }
-    Spacer(Modifier.height(8.dp))
+    Spacer(Modifier.height(Dimens.spaceSm))
     Text(
         text = "${stringResource(R.string.focus_session_distractions)}: ${session.totalCount}" +
             " (${stringResource(R.string.focus_noise_label)} ${session.noiseCount}," +
             " ${stringResource(R.string.focus_movement_label)} ${session.movementCount})",
         style = MaterialTheme.typography.bodyMedium,
+        color = OnFocus,
     )
-    Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(Dimens.spaceLg))
     LazyColumn(
-        modifier = Modifier.heightIn(max = 360.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.heightIn(max = Dimens.detailListMaxHeight),
+        verticalArrangement = Arrangement.spacedBy(Dimens.spaceXs),
     ) {
         items(session.events) { event -> EventRow(event) }
     }
@@ -151,10 +179,10 @@ private fun EventRow(event: DistractionEventUi) {
         if (event.type == DistractionType.NOISE) R.string.distraction_noise else R.string.distraction_movement,
     )
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.spaceSm),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
-        Text(event.timeLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = OnFocus)
+        Text(event.timeLabel, style = MaterialTheme.typography.bodySmall, color = OnFocusMuted)
     }
 }

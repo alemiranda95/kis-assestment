@@ -2,6 +2,9 @@
     <string name="focus_title">Focus Mode</string>
     <string name="focus_status_idle">Ready to focus</string>
     <string name="focus_status_active">Session in progress</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_focusing">Focusing</string>
+    <string name="cd_history">View session history</string>
     <string name="focus_start">Start session</string>
     <string name="focus_stop">Stop session</string>
 

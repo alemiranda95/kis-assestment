@@ -1,8 +1,8 @@
 package com.assestment.kis.domain.session
 
-import com.assestment.kis.domain.core.DataError
-import com.assestment.kis.domain.core.Result
-import com.assestment.kis.domain.core.TimeProvider
+import com.assestment.kis.domain.util.DataError
+import com.assestment.kis.domain.util.Result
+import com.assestment.kis.domain.util.TimeProvider
 import com.assestment.kis.domain.session.FocusSession
 import com.assestment.kis.domain.session.FocusSessionRepository
 

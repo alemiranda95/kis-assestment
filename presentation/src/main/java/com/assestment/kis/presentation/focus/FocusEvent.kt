@@ -1,6 +1,6 @@
 package com.assestment.kis.presentation.focus
 
-import com.assestment.kis.presentation.core.ui.UiText
+import com.assestment.kis.presentation.ui.UiText
 
 sealed interface FocusEvent {
     data class ShowMessage(val message: UiText) : FocusEvent

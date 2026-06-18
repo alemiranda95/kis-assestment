@@ -1,7 +1,7 @@
 package com.assestment.kis.presentation.focus
 
 import androidx.compose.runtime.Stable
-import com.assestment.kis.presentation.core.ui.UiText
+import com.assestment.kis.presentation.ui.UiText
 import com.assestment.kis.presentation.focus.model.SessionUi
 
 @Stable

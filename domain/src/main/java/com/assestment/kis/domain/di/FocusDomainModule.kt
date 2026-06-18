@@ -1,7 +1,7 @@
 package com.assestment.kis.domain.di
 
-import com.assestment.kis.domain.core.IdGenerator
-import com.assestment.kis.domain.core.TimeProvider
+import com.assestment.kis.domain.util.IdGenerator
+import com.assestment.kis.domain.util.TimeProvider
 import com.assestment.kis.domain.detection.DistractionMonitor
 import com.assestment.kis.domain.detection.FocusConfig
 import com.assestment.kis.domain.detection.ObserveDistractionsUseCase

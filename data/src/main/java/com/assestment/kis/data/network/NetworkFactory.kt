@@ -1,4 +1,4 @@
-package com.assestment.kis.data.core.network
+package com.assestment.kis.data.network
 
 import com.assestment.kis.data.session.remote.SessionApi
 import kotlinx.serialization.json.Json

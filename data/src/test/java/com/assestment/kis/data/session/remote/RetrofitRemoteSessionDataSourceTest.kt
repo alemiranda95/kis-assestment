@@ -4,8 +4,8 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
-import com.assestment.kis.domain.core.DataError
-import com.assestment.kis.domain.core.Result
+import com.assestment.kis.domain.util.DataError
+import com.assestment.kis.domain.util.Result
 import com.assestment.kis.domain.session.FocusSession
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json

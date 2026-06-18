@@ -1,4 +1,4 @@
-package com.assestment.kis.presentation.core.designsystem.theme
+package com.assestment.kis.presentation.ds
 
 import androidx.compose.ui.graphics.Color
 

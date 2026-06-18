@@ -1,6 +1,6 @@
-package com.assestment.kis.presentation.core.ui
+package com.assestment.kis.presentation.ui
 
-import com.assestment.kis.domain.core.DataError
+import com.assestment.kis.domain.util.DataError
 import com.assestment.kis.presentation.R
 
 fun DataError.toUiText(): UiText = UiText.StringResource(

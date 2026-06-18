@@ -1,4 +1,4 @@
-package com.assestment.kis.presentation.core.ui
+package com.assestment.kis.presentation.ui
 
 /** Formats a millisecond duration as mm:ss (used for both the live timer and history rows). */
 fun formatDuration(millis: Long): String {

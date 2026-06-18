@@ -1,6 +1,6 @@
 package com.assestment.kis.domain.detection
 
-import com.assestment.kis.domain.core.TimeProvider
+import com.assestment.kis.domain.util.TimeProvider
 import com.assestment.kis.domain.session.DistractionEvent
 import com.assestment.kis.domain.session.DistractionType
 import com.assestment.kis.domain.detection.MotionSource

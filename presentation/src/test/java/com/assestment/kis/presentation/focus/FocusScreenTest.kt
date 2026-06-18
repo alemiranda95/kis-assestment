@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.assestment.kis.presentation.core.designsystem.theme.KisTheme
+import com.assestment.kis.presentation.ds.KisTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

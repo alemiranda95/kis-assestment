@@ -2,7 +2,7 @@ package com.assestment.kis.presentation.focus.model
 
 import com.assestment.kis.domain.session.DistractionEvent
 import com.assestment.kis.domain.session.FocusSession
-import com.assestment.kis.presentation.core.ui.formatDuration
+import com.assestment.kis.presentation.ui.formatDuration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

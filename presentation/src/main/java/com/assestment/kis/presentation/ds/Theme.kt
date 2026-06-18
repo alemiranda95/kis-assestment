@@ -1,4 +1,4 @@
-package com.assestment.kis.presentation.core.designsystem.theme
+package com.assestment.kis.presentation.ds
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

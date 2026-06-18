@@ -3,9 +3,9 @@ package com.assestment.kis.presentation.focus
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.assestment.kis.domain.core.TimeProvider
-import com.assestment.kis.domain.core.onFailure
-import com.assestment.kis.domain.core.onSuccess
+import com.assestment.kis.domain.util.TimeProvider
+import com.assestment.kis.domain.util.onFailure
+import com.assestment.kis.domain.util.onSuccess
 import com.assestment.kis.domain.detection.ObserveDistractionsUseCase
 import com.assestment.kis.domain.permission.AppPermission
 import com.assestment.kis.domain.permission.CheckPermissionUseCase
@@ -15,7 +15,7 @@ import com.assestment.kis.domain.session.GetSessionDetailUseCase
 import com.assestment.kis.domain.session.GetSessionHistoryUseCase
 import com.assestment.kis.domain.session.StartFocusSessionUseCase
 import com.assestment.kis.domain.session.StopFocusSessionUseCase
-import com.assestment.kis.presentation.core.ui.toUiText
+import com.assestment.kis.presentation.ui.toUiText
 import com.assestment.kis.presentation.focus.model.toSessionUi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel

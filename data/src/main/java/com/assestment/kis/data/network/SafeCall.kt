@@ -1,8 +1,8 @@
-package com.assestment.kis.data.core.network
+package com.assestment.kis.data.network
 
-import com.assestment.kis.domain.core.DataError
-import com.assestment.kis.domain.core.EmptyResult
-import com.assestment.kis.domain.core.Result
+import com.assestment.kis.domain.util.DataError
+import com.assestment.kis.domain.util.EmptyResult
+import com.assestment.kis.domain.util.Result
 import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.SerializationException
 import retrofit2.Response

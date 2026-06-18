@@ -1,8 +1,8 @@
-package com.assestment.kis.domain.core
+package com.assestment.kis.domain.util
 
 sealed interface Result<out D, out E : Error> {
     data class Success<out D>(val data: D) : Result<D, Nothing>
-    data class Error<out E : com.assestment.kis.domain.core.Error>(val error: E) : Result<Nothing, E>
+    data class Error<out E : com.assestment.kis.domain.util.Error>(val error: E) : Result<Nothing, E>
 }
 
 typealias EmptyResult<E> = Result<Unit, E>

@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.assestment.kis.presentation.core.designsystem.theme.KisTheme
+import com.assestment.kis.presentation.ds.KisTheme
 import com.assestment.kis.presentation.focus.navigation.FocusRoute
 import com.assestment.kis.presentation.focus.navigation.focusGraph
 

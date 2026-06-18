@@ -36,9 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.assestment.kis.presentation.R
-import com.assestment.kis.presentation.core.designsystem.theme.KisTheme
-import com.assestment.kis.presentation.core.ui.ObserveAsEvents
-import com.assestment.kis.presentation.core.ui.formatDuration
+import com.assestment.kis.presentation.ds.KisTheme
+import com.assestment.kis.presentation.ui.ObserveAsEvents
+import com.assestment.kis.presentation.ui.formatDuration
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 

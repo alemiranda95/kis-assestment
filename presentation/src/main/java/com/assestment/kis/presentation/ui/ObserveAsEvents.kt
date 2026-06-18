@@ -1,4 +1,4 @@
-package com.assestment.kis.presentation.core.ui
+package com.assestment.kis.presentation.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

@@ -3,7 +3,7 @@ package com.assestment.kis.domain.detection
 import app.cash.turbine.test
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.assestment.kis.domain.core.TimeProvider
+import com.assestment.kis.domain.util.TimeProvider
 import com.assestment.kis.domain.session.DistractionType
 import com.assestment.kis.domain.detection.MotionSource
 import com.assestment.kis.domain.detection.NoiseSource

@@ -3,7 +3,7 @@ package com.assestment.kis.domain.detection
 import app.cash.turbine.test
 import assertk.assertThat
 import assertk.assertions.hasSize
-import com.assestment.kis.domain.core.TimeProvider
+import com.assestment.kis.domain.util.TimeProvider
 import com.assestment.kis.domain.notification.DistractionNotifier
 import com.assestment.kis.domain.permission.AppPermission
 import com.assestment.kis.domain.permission.PermissionChecker

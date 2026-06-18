@@ -1,7 +1,7 @@
 package com.assestment.kis.presentation.focus
 
-import com.assestment.kis.domain.core.DataError
-import com.assestment.kis.domain.core.Result
+import com.assestment.kis.domain.util.DataError
+import com.assestment.kis.domain.util.Result
 import com.assestment.kis.domain.session.DistractionEvent
 import com.assestment.kis.domain.session.FocusSession
 import com.assestment.kis.domain.notification.DistractionNotifier

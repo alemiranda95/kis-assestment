@@ -1,13 +1,13 @@
 package com.assestment.kis.data.session.remote
 
-import com.assestment.kis.data.core.network.safeCall
-import com.assestment.kis.data.core.network.safeCallEmpty
+import com.assestment.kis.data.network.safeCall
+import com.assestment.kis.data.network.safeCallEmpty
 import com.assestment.kis.data.session.mapper.toDomain
 import com.assestment.kis.data.session.mapper.toDto
-import com.assestment.kis.domain.core.DataError
-import com.assestment.kis.domain.core.EmptyResult
-import com.assestment.kis.domain.core.Result
-import com.assestment.kis.domain.core.map
+import com.assestment.kis.domain.util.DataError
+import com.assestment.kis.domain.util.EmptyResult
+import com.assestment.kis.domain.util.Result
+import com.assestment.kis.domain.util.map
 import com.assestment.kis.domain.session.FocusSession
 
 class RetrofitRemoteSessionDataSource(private val api: SessionApi) : RemoteSessionDataSource {

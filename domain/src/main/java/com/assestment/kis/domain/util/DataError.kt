@@ -1,4 +1,4 @@
-package com.assestment.kis.domain.core
+package com.assestment.kis.domain.util
 
 sealed interface DataError : Error {
     enum class Network : DataError {

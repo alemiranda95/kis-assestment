@@ -1,11 +1,11 @@
 # Context-Aware Focus Mode
 
-A minimal Android app that helps you run a focus session while it passively watches for
-distractions through the **microphone** (ambient noise) and **accelerometer** (movement). It
-logs distraction events, shows live stats, sends a heads-up notification when a threshold is
-crossed, persists sessions locally, and syncs them to a REST API.
+A small Android app that helps you run a focus session. While a session runs, the app checks for
+distractions with the **microphone** (noise) and the **accelerometer** (movement). It saves each
+distraction, shows live stats, sends a notification when noise or movement is too high, stores the
+sessions on the device, and syncs them to a REST API.
 
-Built for the **KIS Solutions — Senior Android Developer** technical assessment.
+Made for the **KIS Solutions — Senior Android Developer** technical assessment.
 
 > **Application id:** `com.assestment.kis` · **min SDK 26 / target SDK 36** · Kotlin · Jetpack
 > Compose · Material 3.
@@ -14,46 +14,45 @@ Built for the **KIS Solutions — Senior Android Developer** technical assessmen
 
 ## What it does
 
-- **Focus session** — start/stop; a circular timer shows elapsed time, and two live stat
-  cards show the noise and movement distraction counts.
-- **Distraction detection** — threshold-based on a microphone RMS amplitude and accelerometer
-  magnitude. Edge-triggered with a debounce so a sustained noise counts as one event, not
-  hundreds.
-- **Ambient feedback** — the background eases toward red on each distraction (and the count
-  bumps, so the signal is not color-only).
-- **Notifications** — a heads-up, auto-dismissing notification states the reason (noise or
-  movement), throttled per type, through a configured channel.
-- **History** — a bottom sheet loads past sessions from the API and shows per-session event
-  detail.
+- **Focus session** — start and stop a session. A round timer shows the time, and two cards show
+  how many noise and movement distractions happened.
+- **Distraction detection** — it uses simple thresholds on the microphone level and the
+  accelerometer value. One distraction is counted once, even if the noise lasts a while (not
+  hundreds of times).
+- **Visual feedback** — the background turns red for a moment on each distraction. The counter also
+  goes up, so the meaning does not depend on color alone.
+- **Notifications** — a pop-up notification says the reason (noise or movement). It closes by
+  itself, and it is limited so it does not repeat too often. It uses a proper notification channel.
+- **History** — a bottom sheet loads past sessions from the API and shows the events of each session.
 
 ---
 
 ## Quick start
 
-This project uses a **bleeding-edge AGP 9.2.1 / Gradle 9.4.1 / Kotlin 2.2.10** toolchain, which
-needs a **JDK 17+**. Android Studio's bundled JBR (21) works out of the box.
+To build the app you need a recent **JDK (17 or newer)**. The easiest way is to open the project in
+**Android Studio**, which already includes a compatible JDK.
 
 - **Android Studio:** set *Settings → Build, Execution, Deployment → Build Tools → Gradle →
-  Gradle JDK* to the embedded **JBR**, then Sync.
-- **CLI:**
+  Gradle JDK* to the included JDK, then Sync and Run.
+- **CLI** (set `JAVA_HOME` to a JDK 17+, for example the one inside Android Studio):
   ```bash
   export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
   ./gradlew :app:assembleDebug      # build
   ./gradlew test                    # JVM unit tests (domain + data + ViewModel)
   ```
 
-On first launch the app requests **microphone** and (Android 13+) **notification** permissions.
-Make a sustained sound or move the device to trigger distractions.
+On the first launch, the app asks for the **microphone** and (on Android 13+) the **notification**
+permission. Make a loud sound or move the phone to create distractions.
 
-> The runtime networking uses an in-process **fake** REST backend (see *Persistence & API*), so
-> the app is fully self-contained — no server or internet needed.
+> The app uses a **fake** REST backend that runs inside the app (see *Persistence & API*). So it
+> works on its own, with no server and no internet.
 
 ---
 
 ## Architecture
 
-Clean Architecture across **five flat modules**. The dependency rule points inward: everything
-depends on `:domain`, and `:domain` depends on nothing Android.
+The app uses Clean Architecture with **five modules**. Every module depends on `:domain`, and
+`:domain` does not depend on Android.
 
 ```
             ┌─────────────────────────── :app ───────────────────────────┐
@@ -73,181 +72,194 @@ depends on `:domain`, and `:domain` depends on nothing Android.
                             └────────────────┘
 ```
 
-| Module | Type | Responsibility |
+| Module | Type | What it holds |
 |---|---|---|
-| `:domain` | Kotlin/JVM library | Models, `Result`/error types, use cases, **detection policy** (evaluator, throttle, monitor), and the interfaces the outer layers implement. Zero Android. |
-| `:data` | Android library | Room (source of truth), Retrofit + a fake remote (Option B), DTO/entity mappers, offline-first repository. |
-| `:platform` | Android library | Android-framework isolation: `AudioRecord`/`SensorManager` sources, `NotificationManagerCompat` notifier, runtime permission checker. |
-| `:presentation` | Android library | MVI `FocusViewModel`, Compose UI + design system (`ds/`), type-safe navigation. |
-| `:app` | Android app | Wires the implementations to the domain interfaces via Koin and hosts the single screen. |
+| `:domain` | Kotlin/JVM library | Models, `Result`/error types, use cases, and the detection logic (evaluator, throttle, monitor). It also defines the interfaces that the other layers implement. No Android code. |
+| `:data` | Android library | Room (the main data store), Retrofit and a fake remote that runs in the app, DTO/entity mappers, and an offline-first repository. |
+| `:platform` | Android library | The Android-only code: `AudioRecord`/`SensorManager` sources, the `NotificationManagerCompat` notifier, and the permission checker. |
+| `:presentation` | Android library | The MVI `FocusViewModel`, the Compose UI, the design system (`ds/`), and type-safe navigation. |
+| `:app` | Android app | Connects the implementations to the domain interfaces with Koin, and shows the single screen. |
 
-**Why 5 flat modules instead of `:core:*`/`:feature:*` + convention plugins?** The layer
-separation that's graded is identical; flat modules give real, enforced module boundaries with
-far less Gradle setup — the right trade-off for a single-feature app under a timebox. The full
-matrix is the documented production scaling path (below).
+**Why five simple modules and not a bigger `:core:*`/`:feature:*` setup?** The layer separation is
+the same, but simple modules need much less build setup. This is a good choice for a one-feature app
+with limited time. The bigger setup is described below as the way to grow the project.
 
-**Presentation pattern — MVI.** Each screen has a `State` (immutable), `Action` (sealed user
-intents), `Event` (one-shot effects), and a `ViewModel`. The composables split into a
-`FocusRoot` (collects state, wires Koin + permission launchers) and a pure, previewable
-`FocusScreen(state, onAction)`. The ViewModel depends **only on use cases** — never on a
-repository, sensor, or notifier directly.
+**Presentation pattern — MVI.** Each screen has a `State` (immutable), an `Action` (user actions),
+an `Event` (one-time effects), and a `ViewModel`. The UI is split into `FocusRoot` (reads the state
+and connects Koin and the permission launchers) and `FocusScreen(state, onAction)` (a simple
+function that is easy to preview). The ViewModel uses **only use cases**. It never calls a
+repository, a sensor, or the notifier directly.
 
-**DI — Koin**, one module per layer, assembled only in `:app`.
+**DI — Koin**, one module per layer, all connected in `:app`.
 
 ---
 
 ## Native resource handling
 
-This is the part the app is built around, and the design goal was: **business logic must be
-testable without touching Android.**
+This is the core part of the app. The main goal was simple: **the business logic must be testable
+without Android.**
 
-- **Sensors are behind domain interfaces.** `:domain` declares `NoiseSource` and `MotionSource`
-  as `Flow<Float>` of raw magnitude. The Android implementations live in `:platform`
-  (`AudioRecordNoiseSource`, `SensorManagerMotionSource`). Nothing in the domain or presentation
-  layer imports `android.hardware` or `android.media`.
-- **The *decision* is pure.** `DistractionEvaluator` (in `:domain`) takes a magnitude + threshold
-  and returns whether it's a distraction — edge-triggered with a debounce re-arm window. It's a
-  plain Kotlin class, unit-tested by feeding it numbers.
-- **Lifecycle = collection.** Both sensor sources are cold `callbackFlow`s: they register on
-  collection and release in `awaitClose`. The ViewModel only collects while a session is active, so
-  the mic and accelerometer are acquired on **Start** and released on **Stop** — no manual
-  bookkeeping, no leaks.
-- **Backgrounding ends the session.** A `ProcessLifecycleOwner` observer in `FocusRoot` stops the
-  session when the app goes to background (`ON_STOP`), which releases the sensors, saves the session,
-  and best-effort syncs it. Config changes (rotation) are debounced by `ProcessLifecycleOwner`, so
-  they don't end a session. This keeps detection strictly foreground and is *why* no foreground
-  service is needed.
-- **Permissions.** Requested on app entry and at session start via the Activity Result API in
-  `FocusRoot`; status is queried through a `PermissionChecker` interface. If the mic is denied the
-  session still runs (movement-only) and the UI says so.
-- **Battery awareness (implemented):** modest accelerometer rate (`SENSOR_DELAY_NORMAL`); the mic
-  is sampled mono at 16 kHz for loudness only (not fidelity), with the first buffers discarded to
-  skip the startup transient; sensors run only while a session is foreground; network is batched to
-  a single POST at stop.
+- **Sensors are behind interfaces.** `:domain` defines `NoiseSource` and `MotionSource` as a
+  `Flow<Float>` of raw values. The Android versions are in `:platform` (`AudioRecordNoiseSource`,
+  `SensorManagerMotionSource`). The domain and presentation layers never import `android.hardware`
+  or `android.media`.
+- **The decision is pure.** `DistractionEvaluator` (in `:domain`) takes a value and a threshold and
+  decides if it is a distraction. It fires only when the value crosses the threshold, and it waits
+  before it can fire again. It is a plain Kotlin class, tested by giving it numbers.
+- **Lifecycle = collection.** Both sensor sources are cold `callbackFlow`s. They start when
+  collection starts and stop in `awaitClose`. The ViewModel collects only while a session runs, so
+  the mic and accelerometer turn on at **Start** and turn off at **Stop**. There is no extra cleanup
+  code and no leaks.
+- **Going to the background ends the session.** A `ProcessLifecycleOwner` observer in `FocusRoot`
+  stops the session when the app goes to the background (`ON_STOP`). This releases the sensors, saves
+  the session, and syncs it if possible. Rotation does not stop the session, because
+  `ProcessLifecycleOwner` ignores short config changes. This keeps detection in the foreground only,
+  which is why no foreground service is needed.
+- **Permissions.** They are asked on app start and on session start with the Activity Result API in
+  `FocusRoot`. The current status is read through a `PermissionChecker` interface. If the microphone
+  is denied, the session still runs with movement only, and the UI shows this.
+- **Battery.** The accelerometer uses a normal rate (`SENSOR_DELAY_NORMAL`). The mic records in mono
+  at 16 kHz, only to measure loudness (not quality), and the first buffers are skipped to avoid a
+  start noise. Sensors run only in the foreground. The app sends one POST at stop instead of many
+  calls.
 
-**Foreground service — intentionally not used.** Detection only runs while the app is foreground
-(backgrounding stops the session, above), so a foreground service is unnecessary for the MVP (and
-avoids its own battery cost and notification). True always-on/background monitoring *would* require a
-foreground service with the `microphone` type — documented as future work, not built.
+**Foreground service — not used on purpose.** Detection runs only in the foreground (the background
+stops the session, see above). So the MVP does not need a foreground service, which would add its
+own battery cost and notification. Real background monitoring would need a foreground service with
+the `microphone` type. This is listed as future work and is not built.
 
 ---
 
 ## Notifications
 
-Modern APIs: a configured `NotificationChannel` (`IMPORTANCE_HIGH` for heads-up), built with
-`NotificationCompat`, posted via `NotificationManagerCompat`, gated on the `POST_NOTIFICATIONS`
-runtime permission (Android 13+). Each notification clearly states the reason, auto-dismisses
-(`setTimeoutAfter`), and is throttled to once per type per cooldown so it never spams. The
-*throttle decision* lives in `:domain` (`NotificationThrottle`) and is unit-tested; only the act
-of showing a notification is in `:platform`.
+The app uses modern APIs: a `NotificationChannel` with `IMPORTANCE_HIGH` (pop-up), built with
+`NotificationCompat`, shown with `NotificationManagerCompat`, and protected by the
+`POST_NOTIFICATIONS` permission (Android 13+). Each notification says the reason, closes by itself
+(`setTimeoutAfter`), and is limited to one per type per cooldown, so it does not repeat too often.
+The rule that limits notifications is in `:domain` (`NotificationThrottle`) and is unit-tested. Only
+the act of showing the notification is in `:platform`.
 
 ---
 
-## Persistence & API (offline-first, "Option B")
+## Persistence & API (offline-first)
 
-- **Room is the source of truth.** Sessions and their distraction events persist locally and
-  survive process death.
-- **Sync is best-effort.** On stop, the session is saved to Room, then `POST /sessions` is
-  attempted; failure leaves it stored and marked unsynced with a non-blocking message — the stop
-  action never fails.
-- **Reads are offline-first:** `GET /sessions` → cache into Room → return from Room, falling back
-  to the cache on network error. `GET /session/{id}` for detail.
-- **The mock API is in-process.** A `FakeRemoteSessionDataSource` is the runtime default, so the
-  app is self-contained. The **real `RetrofitRemoteSessionDataSource`** implements the same
-  interface and is verified against **MockWebServer** in tests (paths, JSON, 404/500/timeout
-  mapping). Swapping fake → real is a one-line DI change. *Trade-off:* the live demo doesn't make a
-  network round-trip; in exchange the build runs anywhere, deterministically.
+- **Room is the main data store.** Sessions and their events are saved on the device and survive
+  process death.
+- **Sync is best-effort.** At stop, the session is saved to Room first, then the app tries
+  `POST /sessions`. If it fails, the session stays saved and is marked as not synced, and the user
+  sees a short message. The stop action never fails.
+- **Reads are offline-first.** `GET /sessions` loads from the API, saves to Room, and returns the
+  Room data. If the network fails, it returns the saved data. `GET /session/{id}` loads the details.
+- **The mock API runs inside the app.** `FakeRemoteSessionDataSource` is used at runtime, so the app
+  works on its own. The real `RetrofitRemoteSessionDataSource` uses the same interface and is tested
+  with **MockWebServer** (paths, JSON, and 404/500/timeout handling). Changing from the fake to the
+  real one is a one-line DI change. *Trade-off:* the demo does not make a real network call, but in
+  return the build works anywhere and gives the same result every time.
 
-Networking uses **Retrofit** ("or equivalent" per the brief). Models are separated three ways —
-`SessionDto` (network) ↔ `FocusSession` (domain) ↔ `SessionEntity` (Room) — with mappers in `:data`.
+Networking uses **Retrofit** ("or equivalent" in the brief). The models are kept separate in three
+forms: `SessionDto` (network), `FocusSession` (domain), and `SessionEntity` (Room), with mappers in
+`:data`.
 
 ---
 
 ## Testability
 
-Testability was treated as a first-class concern; the architecture exists largely to enable it.
+Testing was a main goal, and the architecture is built to make it easy.
 
-- **`:domain` is pure JVM**, so its tests run fast with no device:
-  - `DistractionEvaluator` — threshold crossing, debounce re-arm, per-type independence.
-  - `NotificationThrottle` — cooldown gating.
-  - `DistractionMonitor` / `ObserveDistractionsUseCase` — fake sources → expected events + notify policy.
-- **ViewModel** (`FocusViewModelTest`) — state transitions, distraction counting + notify, sync-failure
-  event, history load success/failure, permission flows — with fakes, Turbine, and a test dispatcher.
-- **Data** — `RetrofitRemoteSessionDataSource` against MockWebServer, and the offline-first repository
+- **`:domain` is pure JVM**, so its tests are fast and need no device:
+  - `DistractionEvaluator` — crossing the threshold, the wait before firing again, and each type
+    counted on its own.
+  - `NotificationThrottle` — the cooldown.
+  - `DistractionMonitor` / `ObserveDistractionsUseCase` — fake sources produce the expected events
+    and notifications.
+- **ViewModel** (`FocusViewModelTest`) — state changes, counting and notifying, the sync-failure
+  message, history load (success and failure), and the permission flows. It uses fakes, Turbine, and
+  a test dispatcher.
+- **Data** — `RetrofitRemoteSessionDataSource` with MockWebServer, and the offline-first repository
   with in-memory fakes.
-- **UI** — a Robolectric Compose test for the screen (start/stop rendering + click), runnable on the JVM.
+- **UI** — a Robolectric Compose test for the screen (it checks start/stop and a click) that runs on
+  the JVM.
 
-Stack: JUnit5 (domain), JUnit4 + Turbine + AssertK + `kotlinx-coroutines-test` (Android modules),
-MockWebServer, Robolectric. Fakes are preferred over mocks.
+Tools: JUnit5 (domain), JUnit4 + Turbine + AssertK + `kotlinx-coroutines-test` (Android modules),
+MockWebServer, and Robolectric. The tests use fakes instead of mocks.
 
 ---
 
 ## Accessibility
 
-A pragmatic inclusive-design pass (not a full WCAG audit):
+A basic inclusive-design pass (not a full WCAG audit):
 
-- **Content descriptions** on the history FAB and the sync badge; stat cards expose a single merged
-  description (`"Noise: 3"`) for screen readers; decorative icons are `null`.
-- **Not color-only** — a distraction shows as a rising count and an icon/label, not just the red flash.
-- **Touch targets** ≥ 48dp (the primary button is 60dp; the small history FAB uses
+- **Content descriptions** on the history button and the sync badge. The stat cards give one
+  combined description (`"Noise: 3"`) for screen readers, and decorative icons are `null`.
+- **Not color only** — a distraction shows as a higher number and an icon/label, not only the red
+  flash.
+- **Touch targets** are at least 48dp (the main button is 60dp; the small history button uses
   `minimumInteractiveComponentSize()`).
-- **Dynamic type** — Material 3 typography scales with the user's font size.
-- **Contrast** — light text on the deep-indigo gradient clears 7:1.
+- **Font scaling** — Material 3 text scales with the user's font size.
+- **Contrast** — light text on the dark-blue background is easy to read.
 
 ---
 
 ## Design system
 
-UI values live in `:presentation/ds/` so there are **no magic numbers in composables**:
-`Color.kt` (gradient, accent, translucent overlays), `Values.kt` (`Dimens` sizes/spacing, `Motion`
-durations, `FocusLayout` weights/angles), `Theme.kt`, `Type.kt`. The main screen is an intentional
-always-dark focus ambiance; the Material 3 light/dark scheme drives the history sheet and dialogs.
+The UI values are in `:presentation/ds/`, so there are **no magic numbers in the composables**:
+`Color.kt` (gradient, accent, see-through overlays), `Values.kt` (`Dimens` for sizes and spacing,
+`Motion` for durations, `FocusLayout` for weights and angles), `Theme.kt`, and `Type.kt`. The main
+screen is always dark on purpose, to feel calm. The Material 3 light/dark theme is used for the
+history sheet and dialogs.
 
 ---
 
-## Trade-offs & what was intentionally deprioritized
+## Trade-offs & what was left out on purpose
 
-- **Multi-module convention plugins / `build-logic`** — flat modules instead (see Architecture).
-- **Foreground service** — not needed for foreground-only detection (documented decision).
-- **Live HTTP at runtime** — Option B fake; real client is test-covered instead.
-- **Adaptive battery** (`PowerManager.isPowerSaveMode`, battery-level sampling) and **WorkManager**
-  sync retry/backoff — designed-for but not built.
-- **Process-death restoration** — the active session restores elapsed-time continuity via
-  `SavedStateHandle`, but in-flight events are not restored (a known MVP limitation).
-- **Full WCAG audit** — basics only.
+- **A bigger module setup** (`:core:*` + `:feature:*` with convention plugins) — simple modules were
+  used instead (see Architecture).
+- **Foreground service** — not needed for foreground-only detection (a documented decision).
+- **Real network calls at runtime** — the app uses a fake backend inside the app; the real Retrofit
+  client is covered by tests (MockWebServer) instead of the demo.
+- **Adaptive battery** (`PowerManager.isPowerSaveMode`, battery level) and **WorkManager** retry —
+  planned but not built.
+- **Process-death restoration** — the session keeps its time after process death with
+  `SavedStateHandle`, but the events during the session are not restored (a known MVP limit).
+- **Full WCAG audit** — only the basics.
 
-## What I'd improve with more time / how this scales
+## What I would improve with more time / how it scales
 
-- **Modularize per feature** (`:core:*` + `:feature:*` with convention plugins) as more features
-  land, to keep build times and boundaries healthy.
-- **Adaptive detection & battery** — calibrate thresholds, duty-cycle the mic under power-save,
-  optionally a foreground service for background sessions.
-- **Real sync** — swap the fake remote for the Retrofit client + a backend, add WorkManager retry,
-  conflict resolution, and auth/token handling (the `DataError` types already cover it).
-- **Observability** — structured logging/metrics on detection accuracy to tune thresholds in the field.
-- **Deeper tests** — instrumented Room/DAO tests, more Compose UI coverage, screenshot tests.
+- **Split by feature** (`:core:*` + `:feature:*` with convention plugins) when more features are
+  added, to keep build times and boundaries clean.
+- **Adaptive detection and battery** — tune the thresholds, slow the mic in power-save mode, and add
+  a foreground service for background sessions if needed.
+- **Real sync** — replace the fake remote with the Retrofit client and a backend, add WorkManager
+  retry, handle conflicts, and add auth/token support (the `DataError` types already support this).
+- **Monitoring** — add logs and metrics about detection accuracy to tune the thresholds in real use.
+- **More tests** — instrumented Room/DAO tests, more Compose UI tests, and screenshot tests.
 
 ---
 
 ## Tooling & methodology
 
-**AI usage (approved by the recruiter).** Built with **Claude Code** following a **Spec-Driven
-Development** workflow: `brainstorm → spec → plan → implement → review`, with a human checkpoint
-between every stage. Each stage produced a document (kept in a local `_docs/`, not part of the
-deliverable) that the next stage built on. The AI generated the Kotlin/Gradle code; every
-architectural decision was made and reviewed deliberately — including pushing back on and
-restructuring its output (e.g. introducing use cases, reorganizing packages, redesigning the UI).
+**AI usage (approved by the recruiter).** The app was built with **Claude Code** using a
+**Spec-Driven Development** process: `brainstorm → spec → plan → implement → review`, with a human
+check between each step. Each step created a document (kept in a local `_docs/` folder, not part of
+the deliverable) that the next step used. The AI wrote the Kotlin/Gradle code, but every design
+choice was made and reviewed on purpose. This included changing the AI's output when needed (for
+example, adding use cases, reorganizing packages, and redesigning the UI).
 
-**Time spent** — derived from git commit timestamps (the source of truth), not estimated:
+**Time spent** — from git commit times (the real source), not guessed. Rough blocks:
 
-| | |
-|---|---|
-| **Core timebox** | **~3h** — planning + Phases 1–4: full 5-module architecture, pure tested domain, MVI UI, Room + offline-first API. App running end-to-end on simulated sensors. |
-| **Extra time** | **~2h** — real `AudioRecord`/`SensorManager` sensors + notifications + permissions, on-device bug fixes, the UI redesign, and this README. |
-| **Total** | **≈ 5h** |
+| Block | ~Time | What was done |
+|---|---|---|
+| Planning | ~1h | Brainstorm, spec, and plan: architecture, scope, and the main decisions |
+| Foundation + domain | ~40m | The five-module project and build setup; the pure-Kotlin domain and detection logic, with unit tests |
+| Presentation | ~55m | The MVI ViewModel, the Compose screen, and the history sheet (on fakes); then the change to use cases |
+| Data & API | ~10m | Room as the main store, the offline-first repository, Retrofit, and MockWebServer |
+| *— core subtotal —* | *~3h* | *the app is complete in structure and runs end-to-end with simulated sensors* |
+| Platform | ~1h | The real `AudioRecord`/`SensorManager`, notifications, and permissions; plus on-device fixes |
+| UI redesign | ~35m | The gradient screen, round timer, animated stats, themed history sheet, and design values |
+| Polish + review | ~45m | Bug fixes, test fixes, this README, and the review with the background-stop fix |
+| **Total** | **≈ 5h** | **~3h core + ~2h extra** (extra time is allowed if it is documented) |
 
-The extra time (explicitly permitted if documented) turned the architecturally-complete app into
-a polished, on-device-verified one.
+The extra time made the complete app more polished and tested it on a real device.
 
 ---
 
@@ -262,5 +274,4 @@ presentation/ focus (MVI + screen + history), ds (design system), ui (UiText, he
 app/          FocusApp (Koin), MainActivity, NavHost
 ```
 
-Build commands and module conventions are in the project's build files; all modules build with
-`./gradlew build`.
+To build, see the build files in each module. All modules build with `./gradlew build`.

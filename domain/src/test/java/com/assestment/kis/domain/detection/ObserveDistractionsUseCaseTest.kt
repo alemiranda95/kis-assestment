@@ -19,8 +19,8 @@ class ObserveDistractionsUseCaseTest {
     private val timeProvider = TimeProvider { 0L }
 
     private fun monitor() = DistractionMonitor(
-        noiseSource = NoiseSource { flowOf(2000f) },
-        motionSource = MotionSource { emptyFlow() },
+        noiseSource = { flowOf(2000f) },
+        motionSource = { emptyFlow() },
         config = config,
         timeProvider = timeProvider,
     )

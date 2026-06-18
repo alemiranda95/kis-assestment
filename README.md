@@ -210,6 +210,24 @@ history sheet and dialogs.
 
 ---
 
+## What I prioritized (and why)
+
+The time was limited, so the order of work was a deliberate choice:
+
+- **Architecture, the domain, and testability first.** These are the parts the assessment values
+  most, and getting them right early makes every later step safer and faster. After this step, the
+  project is already in a good state, even if something later has to be cut.
+- **A working app early, on fake sensors.** This gave a full start → detect → stop → history flow to
+  show, without depending on device-only code.
+- **Persistence and the API before the real sensors.** These are standard and lower risk, so they
+  were done before the harder, device-specific work.
+- **Real sensors last.** They depend on the device and need the most tuning (mic levels,
+  permissions). Because they sit behind interfaces, the rest of the app did not have to wait for them.
+- **The visual design and on-device testing at the very end.** During the main build the UI was kept
+  simple and functional. The full design (the gradient screen, the round timer, the animations, and
+  the theming) and the testing and fixing on a real device came last, in the extra time, once the app
+  worked and the structure was solid.
+
 ## Trade-offs & what was left out on purpose
 
 - **A bigger module setup** (`:core:*` + `:feature:*` with convention plugins) — simple modules were

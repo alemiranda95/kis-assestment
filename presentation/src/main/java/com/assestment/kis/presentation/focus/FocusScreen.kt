@@ -138,6 +138,9 @@ fun FocusScreen(
         if (state.distractionCount > 0) {
             alert.snapTo(1f)
             alert.animateTo(0f, animationSpec = tween(durationMillis = Motion.AlertFlashMillis))
+        } else {
+            // Count reset (e.g. session stopped mid-flash) cancels the fade above — return to calm.
+            alert.snapTo(0f)
         }
     }
     val background = Brush.verticalGradient(

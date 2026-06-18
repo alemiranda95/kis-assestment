@@ -1,0 +1,26 @@
+# Claude Code internal files (skills, config) — not part of the deliverable
+CLAUDE.md
+.claude/
+
+# Gradle
+.gradle/
+build/
+/captures
+.externalNativeBuild
+.cxx
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+
+# Local configuration
+local.properties
+/local.properties
+
+# Signing
+*.keystore
+*.jks
+
+# OS files
+.DS_Store
+Thumbs.db

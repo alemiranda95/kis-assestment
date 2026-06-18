@@ -42,6 +42,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -199,7 +200,8 @@ fun FocusScreen(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(innerPadding)
-                    .padding(top = Dimens.spaceSm, end = Dimens.spaceMd),
+                    .padding(top = Dimens.spaceSm, end = Dimens.spaceMd)
+                    .minimumInteractiveComponentSize(),
             ) {
                 Icon(Icons.Filled.History, contentDescription = stringResource(R.string.cd_history))
             }

@@ -71,8 +71,14 @@ private fun HistoryList(state: FocusState, onAction: (FocusAction) -> Unit) {
     Text(stringResource(R.string.focus_history_title), style = MaterialTheme.typography.titleLarge, color = OnFocus)
     Spacer(Modifier.height(Dimens.spaceLg))
     when {
-        state.historyLoading -> Box(Modifier.fillMaxWidth().padding(Dimens.spaceXl), Alignment.Center) {
-            CircularProgressIndicator(color = Accent)
+        state.historyLoading -> {
+            val loadingDescription = stringResource(R.string.cd_loading)
+            Box(Modifier.fillMaxWidth().padding(Dimens.spaceXl), Alignment.Center) {
+                CircularProgressIndicator(
+                    color = Accent,
+                    modifier = Modifier.semantics { contentDescription = loadingDescription },
+                )
+            }
         }
 
         state.historyError != null -> Column(horizontalAlignment = Alignment.CenterHorizontally) {

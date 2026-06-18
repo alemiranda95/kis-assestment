@@ -2,10 +2,14 @@ package com.assestment.kis.domain.di
 
 import com.assestment.kis.domain.core.IdGenerator
 import com.assestment.kis.domain.core.TimeProvider
-import com.assestment.kis.domain.session.detection.DistractionMonitor
-import com.assestment.kis.domain.session.detection.FocusConfig
-import com.assestment.kis.domain.session.usecase.StartFocusSessionUseCase
-import com.assestment.kis.domain.session.usecase.StopFocusSessionUseCase
+import com.assestment.kis.domain.detection.DistractionMonitor
+import com.assestment.kis.domain.detection.FocusConfig
+import com.assestment.kis.domain.detection.ObserveDistractionsUseCase
+import com.assestment.kis.domain.permission.CheckPermissionUseCase
+import com.assestment.kis.domain.session.GetSessionDetailUseCase
+import com.assestment.kis.domain.session.GetSessionHistoryUseCase
+import com.assestment.kis.domain.session.StartFocusSessionUseCase
+import com.assestment.kis.domain.session.StopFocusSessionUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import java.util.UUID
@@ -18,4 +22,8 @@ val focusDomainModule = module {
     factoryOf(::DistractionMonitor)
     factoryOf(::StartFocusSessionUseCase)
     factoryOf(::StopFocusSessionUseCase)
+    factoryOf(::ObserveDistractionsUseCase)
+    factoryOf(::GetSessionHistoryUseCase)
+    factoryOf(::GetSessionDetailUseCase)
+    factoryOf(::CheckPermissionUseCase)
 }

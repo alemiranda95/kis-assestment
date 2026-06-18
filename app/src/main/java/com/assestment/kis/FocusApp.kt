@@ -2,6 +2,7 @@ package com.assestment.kis
 
 import android.app.Application
 import com.assestment.kis.data.di.focusDataModule
+import com.assestment.kis.di.appModule
 import com.assestment.kis.domain.di.focusDomainModule
 import com.assestment.kis.platform.di.focusPlatformModule
 import com.assestment.kis.presentation.di.focusPresentationModule
@@ -19,6 +20,7 @@ class FocusApp : Application() {
                 focusDataModule,
                 focusPlatformModule,
                 focusPresentationModule,
+                appModule,
             )
         }
     }

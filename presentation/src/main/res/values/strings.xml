@@ -1,0 +1,40 @@
+<resources>
+    <string name="focus_title">Focus Mode</string>
+    <string name="focus_status_idle">Ready to focus</string>
+    <string name="focus_status_active">Session in progress</string>
+    <string name="focus_start">Start session</string>
+    <string name="focus_stop">Stop session</string>
+
+    <string name="focus_duration_label">Duration</string>
+    <string name="focus_distractions_label">Distractions</string>
+    <string name="focus_noise_label">Noise</string>
+    <string name="focus_movement_label">Movement</string>
+    <string name="focus_noise_unavailable">Noise detection unavailable — microphone permission denied</string>
+
+    <string name="focus_history_button">View history</string>
+    <string name="focus_history_title">Past sessions</string>
+    <string name="focus_history_empty">No past sessions yet</string>
+    <string name="focus_history_retry">Retry</string>
+    <string name="focus_history_close">Close history</string>
+    <string name="focus_back">Back</string>
+    <string name="focus_session_distractions">Distractions</string>
+    <string name="focus_session_synced">Synced</string>
+    <string name="focus_session_unsynced">Not synced</string>
+    <string name="focus_session_detail_loading">Loading session details…</string>
+
+    <string name="distraction_noise">Noise</string>
+    <string name="distraction_movement">Movement</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_noise_distraction">Noise distraction</string>
+    <string name="cd_movement_distraction">Movement distraction</string>
+    <string name="cd_session_synced">Session synced to the server</string>
+    <string name="cd_session_unsynced">Session saved locally, not yet synced</string>
+
+    <!-- Errors -->
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_timeout">The request timed out</string>
+    <string name="error_server">Server error, please try again</string>
+    <string name="error_disk_full">Not enough storage space</string>
+    <string name="error_unexpected">Something went wrong</string>
+</resources>

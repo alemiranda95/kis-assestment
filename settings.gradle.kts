@@ -24,3 +24,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "KIS Technical Assestment"
 include(":app")
+include(":domain")
+include(":data")
+include(":presentation")
+include(":platform")

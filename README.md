@@ -29,6 +29,10 @@ Made for the **KIS Solutions — Senior Android Developer** technical assessment
 
 ## Quick start
 
+**Just want to try it?** A ready-to-install debug APK is in `apk/focus-mode.apk`. Install it
+with `adb install apk/focus-mode.apk`, or copy it to a device and open it. To build from
+source instead, read on.
+
 To build the app you need a recent **JDK (17 or newer)**. The easiest way is to open the project in
 **Android Studio**, which already includes a compatible JDK.
 

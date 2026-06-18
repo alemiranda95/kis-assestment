@@ -30,6 +30,7 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
-    implementation(libs.koin.android)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.koin.android)
 }

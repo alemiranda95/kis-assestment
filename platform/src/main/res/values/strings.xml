@@ -1,0 +1,7 @@
+<resources>
+    <string name="notification_channel_name">Focus distractions</string>
+    <string name="notification_channel_description">Alerts when noise or movement breaks your focus</string>
+    <string name="notification_title">Distraction detected</string>
+    <string name="notification_noise">High noise is breaking your focus</string>
+    <string name="notification_movement">Movement detected — try to stay still</string>
+</resources>

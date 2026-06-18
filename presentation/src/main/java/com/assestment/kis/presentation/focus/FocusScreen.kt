@@ -22,6 +22,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -67,6 +68,10 @@ fun FocusRoot(viewModel: FocusViewModel = koinViewModel()) {
                     notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onAction(FocusAction.ScreenStarted)
     }
 
     FocusScreen(state = state, onAction = viewModel::onAction, snackbarHostState = snackbarHostState)

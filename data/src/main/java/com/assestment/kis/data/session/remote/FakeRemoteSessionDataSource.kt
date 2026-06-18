@@ -3,31 +3,19 @@ package com.assestment.kis.data.session.remote
 import com.assestment.kis.domain.util.DataError
 import com.assestment.kis.domain.util.EmptyResult
 import com.assestment.kis.domain.util.Result
-import com.assestment.kis.domain.session.DistractionEvent
-import com.assestment.kis.domain.session.DistractionType
 import com.assestment.kis.domain.session.FocusSession
 import kotlinx.coroutines.delay
 
 /**
  * In-memory stand-in for the mock REST API — the runtime default under Option B, so the app is
  * self-contained. The real [RetrofitRemoteSessionDataSource] implements the same contract and is
- * covered by the MockWebServer tests. Seed data keeps history non-empty on first run; it resets
- * each launch, which is realistic for a mock backend (Room is the durable source of truth).
+ * covered by the MockWebServer tests. Starts empty (history shows the empty state until the user
+ * completes a session); it resets each launch, which is realistic for a mock backend (Room is the
+ * durable source of truth).
  */
 class FakeRemoteSessionDataSource : RemoteSessionDataSource {
 
-    private val store = mutableListOf(
-        FocusSession(
-            id = "sample-1",
-            startTimeMillis = 1_718_600_000_000,
-            endTimeMillis = 1_718_601_500_000,
-            events = listOf(
-                DistractionEvent(DistractionType.NOISE, 2100f, 1_718_600_200_000),
-                DistractionEvent(DistractionType.MOVEMENT, 5.5f, 1_718_600_900_000),
-            ),
-            synced = true,
-        ),
-    )
+    private val store = mutableListOf<FocusSession>()
 
     override suspend fun postSession(session: FocusSession): EmptyResult<DataError> {
         store.add(0, session.copy(synced = true))

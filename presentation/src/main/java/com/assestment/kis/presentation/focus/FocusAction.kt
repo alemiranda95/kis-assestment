@@ -1,6 +1,7 @@
 package com.assestment.kis.presentation.focus
 
 sealed interface FocusAction {
+    data object ScreenStarted : FocusAction
     data object StartSession : FocusAction
     data object StopSession : FocusAction
     data object OpenHistory : FocusAction

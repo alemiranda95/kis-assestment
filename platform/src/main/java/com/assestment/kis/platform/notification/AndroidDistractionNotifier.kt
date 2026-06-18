@@ -33,8 +33,9 @@ class AndroidDistractionNotifier(private val context: Context) : DistractionNoti
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(context.getString(reasonRes))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
+            .setTimeoutAfter(NOTIFICATION_TIMEOUT_MILLIS)
             .build()
 
         // One id per type, so a fresh alert of the same kind replaces the previous one.
@@ -50,7 +51,7 @@ class AndroidDistractionNotifier(private val context: Context) : DistractionNoti
         val channel = NotificationChannel(
             CHANNEL_ID,
             context.getString(R.string.notification_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT,
+            NotificationManager.IMPORTANCE_HIGH,
         ).apply {
             description = context.getString(R.string.notification_channel_description)
         }
@@ -59,5 +60,6 @@ class AndroidDistractionNotifier(private val context: Context) : DistractionNoti
 
     private companion object {
         const val CHANNEL_ID = "focus_distractions"
+        const val NOTIFICATION_TIMEOUT_MILLIS = 6_000L
     }
 }

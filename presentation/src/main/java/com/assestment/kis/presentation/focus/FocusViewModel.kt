@@ -53,6 +53,7 @@ class FocusViewModel(
 
     fun onAction(action: FocusAction) {
         when (action) {
+            FocusAction.ScreenStarted -> onScreenStarted()
             FocusAction.StartSession -> startSession()
             FocusAction.StopSession -> stopSession()
             FocusAction.OpenHistory -> openHistory()
@@ -60,10 +61,20 @@ class FocusViewModel(
             FocusAction.RetryHistory -> loadHistory()
             is FocusAction.SelectSession -> selectSession(action.id)
             FocusAction.CloseSessionDetail -> _state.update { it.copy(selectedSession = null) }
-            is FocusAction.MicPermissionResult ->
-                _state.update { it.copy(noiseDetectionAvailable = action.granted) }
+            is FocusAction.MicPermissionResult -> onMicPermissionResult(action.granted)
             is FocusAction.NotificationPermissionResult -> Unit
         }
+    }
+
+    private fun onScreenStarted() {
+        _state.update { it.copy(noiseDetectionAvailable = checkPermission(AppPermission.MICROPHONE)) }
+        requestMissingPermissions()
+    }
+
+    private fun onMicPermissionResult(granted: Boolean) {
+        _state.update { it.copy(noiseDetectionAvailable = granted) }
+        // The first session can start before the grant lands; re-attach monitoring so the mic is read.
+        if (granted && _state.value.sessionActive) startMonitoring()
     }
 
     private fun startSession() {

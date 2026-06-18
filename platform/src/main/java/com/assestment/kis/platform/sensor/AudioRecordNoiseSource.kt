@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import com.assestment.kis.domain.detection.NoiseSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
@@ -44,10 +43,14 @@ class AudioRecordNoiseSource(private val context: Context) : NoiseSource {
         val buffer = ShortArray(bufferSize)
         recorder.startRecording()
         val reader = launch(Dispatchers.IO) {
+            // Drop the first buffers: AudioRecord emits a startup transient that would otherwise
+            // register as a spurious noise event. Read continuously so no stale audio backs up.
+            var warmupReadsRemaining = WARMUP_READS
             while (isActive) {
                 val read = recorder.read(buffer, 0, buffer.size)
-                if (read > 0) trySend(rms(buffer, read))
-                delay(SAMPLE_INTERVAL_MILLIS)
+                if (read > 0) {
+                    if (warmupReadsRemaining > 0) warmupReadsRemaining-- else trySend(rms(buffer, read))
+                }
             }
         }
 
@@ -72,6 +75,6 @@ class AudioRecordNoiseSource(private val context: Context) : NoiseSource {
         const val CHANNEL = AudioFormat.CHANNEL_IN_MONO
         const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
         const val MIN_BUFFER = 2048
-        const val SAMPLE_INTERVAL_MILLIS = 200L
+        const val WARMUP_READS = 4
     }
 }
